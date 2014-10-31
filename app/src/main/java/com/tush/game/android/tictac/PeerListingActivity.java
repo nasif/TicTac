@@ -5,13 +5,18 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.tush.game.android.tictac.R;
+import com.tush.game.android.tictac.wifip2p.TicTacWifiP2pManager;
 
 public class PeerListingActivity extends Activity {
+
+
+    private TicTacWifiP2pManager tictacWifiP2pManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_peer_listing_2);
+        setContentView(R.layout.activity_peer_listing);
+        tictacWifiP2pManager= TicTacWifiP2pManager.init(PeerListingActivity.this);
     }
 
 
@@ -32,5 +37,18 @@ public class PeerListingActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        tictacWifiP2pManager.register();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        tictacWifiP2pManager.unregister();
     }
 }
