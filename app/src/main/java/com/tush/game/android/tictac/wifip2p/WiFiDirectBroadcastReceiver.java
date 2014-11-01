@@ -52,21 +52,8 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             }
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             LogUtil.LogDebug("getting this intent"+WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-            WifiP2pDeviceList deviceList=intent.getParcelableExtra(WifiP2pManager.EXTRA_P2P_DEVICE_LIST);
-            Collection<WifiP2pDevice> list= deviceList.getDeviceList();
-            Iterator<WifiP2pDevice>itr= list.iterator();
-            while (itr.hasNext()){
-                WifiP2pDevice device=itr.next();
-                LogUtil.LogDebug(device.deviceAddress);
-                LogUtil.LogDebug(device.deviceName);
-                LogUtil.LogDebug(device.primaryDeviceType);
-                LogUtil.LogDebug(device.secondaryDeviceType);
-                LogUtil.LogDebug(device.isServiceDiscoveryCapable());
-                LogUtil.LogDebug(device.status);
-                LogUtil.LogDebug(device.wpsDisplaySupported());
-                LogUtil.LogDebug(device.wpsKeypadSupported());
-                LogUtil.LogDebug(device.wpsPbcSupported());
-            }
+            requestforPeers();
+
             // Call WifiP2pManager.requestPeers() to get a list of current peers
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
             LogUtil.LogDebug("getting this intent"+WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
@@ -80,6 +67,41 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_GROUP);
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             // Respond to this device's wifi state changing
+        }else if(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION.equals(action)){
+          int discoverystate=  intent.getIntExtra(WifiP2pManager.EXTRA_DISCOVERY_STATE,-1);
+            if(discoverystate==WifiP2pManager.WIFI_P2P_DISCOVERY_STARTED){
+                LogUtil.LogDebug("Discovery started");
+            }else if(discoverystate==WifiP2pManager.WIFI_P2P_DISCOVERY_STOPPED){
+                LogUtil.LogDebug("Discovery stopped");
+            }
         }
+    }
+
+    private void requestforPeers() {
+        mManager.requestPeers(mChannel, new WifiP2pManager.PeerListListener() {
+
+            @Override
+            public void onPeersAvailable(WifiP2pDeviceList peers) {
+
+                WifiP2pDeviceList deviceList=peers;
+                if(deviceList!=null) {
+                    Collection<WifiP2pDevice> list = deviceList.getDeviceList();
+                    LogUtil.LogDebug("Number of peers we get"+list.size());
+                    Iterator<WifiP2pDevice> itr = list.iterator();
+                    while (itr.hasNext()) {
+                        WifiP2pDevice device = itr.next();
+                        LogUtil.LogDebug(device.deviceAddress);
+                        LogUtil.LogDebug(device.deviceName);
+                        LogUtil.LogDebug(device.primaryDeviceType);
+                        LogUtil.LogDebug(device.secondaryDeviceType);
+                        LogUtil.LogDebug(device.isServiceDiscoveryCapable());
+                        LogUtil.LogDebug(device.status);
+                        LogUtil.LogDebug(device.wpsDisplaySupported());
+                        LogUtil.LogDebug(device.wpsKeypadSupported());
+                        LogUtil.LogDebug(device.wpsPbcSupported());
+                    }
+                }
+            }
+        });
     }
 }
